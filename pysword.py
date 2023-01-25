@@ -33,14 +33,13 @@ class PySword:
 
 		self.characters = (self.lower_case_letters, self.upper_case_letters, self.numbers, self.symbols)
 
-		#create a cursor object
-		self.c = self.conn.cursor()
-
 		if os.path.exists(self.masterFile):
 			self.login_screen()
 		else:
 			#connect to the database
 			self.conn = sqlite3.connect('accounts.db')
+			#create a cursor object
+			self.c = self.conn.cursor()
 			#create the table
 			self.c.execute('''CREATE TABLE Accounts (Website TEXT, User_Name TEXT, Salt BLOB, Password BLOB, Key BLOB)''')
 			#commit the changes
@@ -128,6 +127,8 @@ class PySword:
 	def show_main_menu(self):
 		#connect to the database
 		self.conn = sqlite3.connect('accounts.db')
+		#create a cursor object
+		self.c = self.conn.cursor()
 		# clear the login screen
 		self.remove_widgets()
 		self.main_frame = tk.Frame(self.master)
