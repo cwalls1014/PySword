@@ -3,7 +3,7 @@ PySword is a password manager application built using Python and the Tkinter lib
 
 The program has several key features:
 
-Users can create a master password, which is used to encrypt and decrypt their passwords.
+Users can create a master password, which is used to encrypt and decrypt their passwords.\n
 Users can add new accounts by providing the website, username and password, which are then encrypted and stored in the local database.
 Users can view and manage their existing accounts by selecting them from a list of account names.
 Users can generate random, secure passwords with the click of a button.
