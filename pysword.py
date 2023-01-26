@@ -168,51 +168,23 @@ class PySword:
 		self.search_entry.focus()
 		self.search_entry.grid(row=0, column=5,sticky='W')
 
-	def edit_account(self):
-		# Open a new window for adding a password
-		self.add_account_window = tk.Toplevel(self.master)
-		self.add_account_window.title("Edit Account")
-
-		# Create input fields for website, username, and password
-		website_label = tk.Label(self.add_account_window, text="Website:")
-		website_label.grid(row=0,column=0,sticky='W')
-		self.website_entry = tk.Entry(self.add_account_window)
-		self.website_entry.focus()
-		self.website_entry.grid(row=0,column=1,sticky='W')
-
-		username_label = tk.Label(self.add_account_window, text="Username:")
-		username_label.grid(row=1,column=0,sticky='W')
-		self.username_entry = tk.Entry(self.add_account_window)
-		self.username_entry.grid(row=1,column=1,sticky='W')
-
-		password_label = tk.Label(self.add_account_window, text="Password:")
-		password_label.grid(row=2,column=0,sticky='W')
-		self.password_entry = tk.Entry(self.add_account_window)
-		self.password_entry.config(show='*')
-		self.password_entry.grid(row=2,column=1,sticky='W')
-
-		# Create a button to generate a random password
-		generate_password_button = tk.Button(self.add_account_window, text="Generate Password", command=self.generate_random_password)
-		generate_password_button.grid(row=3,column=0,sticky='W')
-
-		# Create buttons to cancel, add password
-		add_account_button = tk.Button(self.add_account_window, text="Edit Account", command=self.update_account)
-		add_account_button.grid(row=3,column=1,sticky='W')
-		cancel_button = tk.Button(self.add_account_window, text="Cancel", command=self.add_account_window.destroy)
-		cancel_button.grid(row=3,column=2,sticky='W')
-
-		self.fill_in_entry_fields()
-
 	def search_account(self):
-		account_name = self.search_entry.get()
-		index = self.account_list.get(0, 'end').index(account_name)
-		if index:
-			self.account_list.activate(index)
-			self.account_list.selection_clear(0, 'end')
-			self.account_list.selection_set(index, last=index)
-			self.account_list.see(index)
+		self.c.execute("SELECT website FROM accounts ORDER BY website ASC")
+		accounts = self.c.fetchall()
+		if len(accounts) < 1:
+			messagebox.showinfo("oops", "No accounts to search for!")
 		else:
-			self.show_error_message("Account not found.")
+			account_name = self.search_entry.get()
+			for account in accounts:
+				account = ''.join(account)
+				if account_name == account:
+					index = self.account_list.get(0, 'end').index(account_name)
+					self.account_list.activate(index)
+					self.account_list.selection_clear(0, 'end')
+					self.account_list.selection_set(index, last=index)
+					self.account_list.see(index)
+				else:
+					messagebox.showinfo("oops", "Account does not exist!")
 
 	def copy_password(self):
 		selected_account = self.account_list.get(self.account_list.curselection()[0])
@@ -249,10 +221,45 @@ class PySword:
 		generate_password_button.grid(row=3,column=0,sticky='W')
 
 		# Create buttons to cancel, add password
-		edit_account_button = tk.Button(self.add_account_window, text="Edit Account", command=self.save_account)
-		edit_account_button.grid(row=3,column=1,sticky='W')
+		add_account_button = tk.Button(self.add_account_window, text="Add Account", command=self.save_account)
+		add_account_button.grid(row=3,column=1,sticky='W')
 		cancel_button = tk.Button(self.add_account_window, text="Cancel", command=self.add_account_window.destroy)
 		cancel_button.grid(row=3,column=2,sticky='W')
+
+	def edit_account(self):
+		# Open a new window for adding a password
+		self.edit_account_window = tk.Toplevel(self.master)
+		self.edit_account_window.title("Edit Account")
+
+		# Create input fields for website, username, and password
+		website_label = tk.Label(self.edit_account_window, text="Website:")
+		website_label.grid(row=0,column=0,sticky='W')
+		self.website_entry = tk.Entry(self.edit_account_window)
+		self.website_entry.focus()
+		self.website_entry.grid(row=0,column=1,sticky='W')
+
+		username_label = tk.Label(self.edit_account_window, text="Username:")
+		username_label.grid(row=1,column=0,sticky='W')
+		self.username_entry = tk.Entry(self.edit_account_window)
+		self.username_entry.grid(row=1,column=1,sticky='W')
+
+		password_label = tk.Label(self.edit_account_window, text="Password:")
+		password_label.grid(row=2,column=0,sticky='W')
+		self.password_entry = tk.Entry(self.edit_account_window)
+		self.password_entry.config(show='*')
+		self.password_entry.grid(row=2,column=1,sticky='W')
+
+		# Create a button to generate a random password
+		generate_password_button = tk.Button(self.edit_account_window, text="Generate Password", command=self.generate_random_password)
+		generate_password_button.grid(row=3,column=0,sticky='W')
+
+		# Create buttons to cancel, edit account
+		edit_account_button = tk.Button(self.edit_account_window, text="Edit Account", command=self.update_account)
+		edit_account_button.grid(row=3,column=1,sticky='W')
+		cancel_button = tk.Button(self.edit_account_window, text="Cancel", command=self.edit_account_window.destroy)
+		cancel_button.grid(row=3,column=2,sticky='W')
+
+		self.fill_in_entry_fields()
 
 	def delete_account(self):
 		selected_account = self.account_list.get(self.account_list.curselection()[0])
@@ -301,7 +308,7 @@ class PySword:
 		self.c.execute("UPDATE accounts SET website=?, user_name=?, password=?, key=? WHERE website=?", (website, userName, encrypted_password, key, website))
 		# Commit the changes
 		self.conn.commit()
-		self.add_account_window.destroy()
+		self.edit_account_window.destroy()
 		self.load_accounts_to_list()
 
 	""" BACKEND FUNCTIONALITY """
